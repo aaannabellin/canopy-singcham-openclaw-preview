@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>mu-ai-amplifies-chaos · preview</title>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --card: #161616;
+    --card-hover: #1c1c1c;
+    --border: #262626;
+    --border-soft: #1f1f1f;
+    --text: #e5e5e5;
+    --muted: #a3a3a3;
+    --muted-soft: #737373;
+    --accent: #4ade80;
+    --accent-dim: #16a34a;
+    --warn: #fbbf24;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; font-size: 14px; line-height: 1.55; }
+  .wrap { max-width: 1400px; margin: 0 auto; padding: 24px; }
+  header.top {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 16px; border-bottom: 1px solid var(--border); margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+  }
+  header.top h1 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+  header.top .sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .pill { font-size: 11px; padding: 2px 8px; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); }
+  .actions { display: flex; gap: 8px; align-items: center; }
+  button {
+    background: var(--card); color: var(--text); border: 1px solid var(--border);
+    border-radius: 6px; padding: 7px 14px; font-size: 12px; font-family: inherit;
+    cursor: pointer; transition: background 0.15s, border-color 0.15s;
+  }
+  button:hover { background: var(--card-hover); border-color: var(--muted-soft); }
+  button.primary { background: var(--accent-dim); border-color: var(--accent); color: #000; font-weight: 500; }
+  button.primary:hover { background: var(--accent); }
+  .save-indicator { font-size: 11px; color: var(--muted); }
+  .save-indicator.saved { color: var(--accent); }
+
+  .info-bar {
+    background: var(--card); border: 1px solid var(--border-soft); border-radius: 8px;
+    padding: 10px 14px; font-size: 12px; color: var(--muted); margin-bottom: 20px;
+  }
+  .info-bar code { background: #000; padding: 1px 5px; border-radius: 3px; color: var(--accent); font-size: 11px; }
+
+  .grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;
+  }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .card-header { border-bottom: 1px solid var(--border-soft); padding-bottom: 10px; }
+  .card-title { font-size: 13px; font-weight: 600; margin: 0; letter-spacing: 0.02em; text-transform: uppercase; color: var(--text); }
+  .card-meta { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+  .card-meta .tag-label { color: var(--muted-soft); }
+  .card-meta strong { color: var(--text); font-weight: 500; }
+
+  textarea.editor {
+    width: 100%; min-height: 280px; resize: vertical;
+    background: #0d0d0d; color: var(--text); border: 1px solid var(--border-soft);
+    border-radius: 6px; padding: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px; line-height: 1.65; outline: none; transition: border-color 0.15s;
+  }
+  textarea.editor:focus { border-color: var(--accent-dim); }
+
+  .card-footer { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .word-count { font-size: 11px; color: var(--muted); }
+  .word-count.warn { color: var(--warn); }
+
+  .section-title {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted);
+    margin: 24px 0 8px 0;
+  }
+
+  .meta-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px;
+    display: grid; grid-template-columns: 180px 1fr; gap: 10px 16px; margin-bottom: 20px;
+  }
+  .meta-card label { font-size: 11px; color: var(--muted-soft); text-transform: uppercase; letter-spacing: 0.04em; padding-top: 8px; }
+  .meta-card input, .meta-card textarea {
+    background: #0d0d0d; color: var(--text); border: 1px solid var(--border-soft);
+    border-radius: 4px; padding: 7px 10px; font-family: inherit; font-size: 12px; line-height: 1.55; outline: none;
+  }
+  .meta-card input:focus, .meta-card textarea:focus { border-color: var(--accent-dim); }
+  .meta-card textarea { resize: vertical; min-height: 50px; }
+  @media (max-width: 700px) { .meta-card { grid-template-columns: 1fr; } }
+
+  .first-comment-card textarea {
+    width: 100%; min-height: 90px; resize: vertical;
+    background: #0d0d0d; color: var(--text); border: 1px solid var(--border-soft);
+    border-radius: 6px; padding: 12px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px; line-height: 1.6; outline: none;
+  }
+
+  footer.bottom {
+    margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border);
+    font-size: 11px; color: var(--muted-soft); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+  footer.bottom a { color: var(--muted); text-decoration: none; border-bottom: 1px dotted var(--border); }
+  footer.bottom a:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <h1 id="post-title" contenteditable="true">AI amplifies chaos, it does not create it</h1>
+    <div class="sub">slug: <code id="slug">mu-ai-amplifies-chaos</code> · event: SingCham Guangdong × OpenClaw Asia · Shenzhen, 2026</div>
+    <div class="pills">
+      <span class="pill">Mu / mu-linkedin</span>
+      <span class="pill">ICP: broad-viral</span>
+      <span class="pill">Risk: medium</span>
+      <span class="pill">Format: event-reflection</span>
+    </div>
+  </div>
+  <div class="actions">
+    <span class="save-indicator" id="save-indicator">edits save locally</span>
+    <button onclick="resetAll()">Reset</button>
+    <button onclick="exportMarkdown()" class="primary">Export .md</button>
+  </div>
+</header>
+
+<div class="info-bar">
+  Edits save automatically in your browser (localStorage). To share with the team, click <strong>Export .md</strong> and send the file. Each <strong>Copy</strong> button copies plain text ready to paste into LinkedIn. Source: Mu's deck at survey.wealthskills.ai/talk/ and event details at luma.com/ifqcjv8z.
+</div>
+
+<div class="grid">
+
+  <!-- Variation A -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Variation A · White Space</h2>
+      <div class="card-meta">
+        <div><span class="tag-label">Hook:</span> <strong>Named tension</strong></div>
+        <div><span class="tag-label">Close:</span> <strong>Aphorism</strong></div>
+        <div><span class="tag-label">Angle:</span> Scheduling, not researching</div>
+      </div>
+    </div>
+    <textarea class="editor" id="var-a" data-key="var-a">I am not researching AI any more. I am scheduling a work team.
+
+4,388 sessions across three machines, February through May. 258 of them were me talking to a main model. 1,480 were worker agents executing tasks the main one assigned. 2,650 were observers and runtime processes that nobody started by hand.
+
+That is not a chat tool. That is a workforce. And it is the team shipping our platform to 60+ institutional clients, 1,600+ users, $120B in assets under reporting.
+
+I shared this in Shenzhen last week at a SingCham session on AI in enterprise. The honest answer most decks miss: AI does not create order. It amplifies whatever organization you already have.
+
+No source of truth - AI scales the confusion. No written handoffs - agents invent them and get them wrong. No named owner - the agent decides by default.
+
+The work that compounds is not better prompts. It is who is accountable, what data they own, what the handoff actually looks like.
+
+The model is the cheap part. Everything around the model is the moat.</textarea>
+    <div class="card-footer">
+      <span class="word-count" id="wc-a">loading</span>
+      <button onclick="copyVar('var-a')">Copy</button>
+    </div>
+  </div>
+
+  <!-- Variation B -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Variation B · Structured</h2>
+      <div class="card-meta">
+        <div><span class="tag-label">Hook:</span> <strong>Bolded list header</strong></div>
+        <div><span class="tag-label">Close:</span> <strong>Consequence-of-inaction</strong></div>
+        <div><span class="tag-label">Angle:</span> Four stages of AI inside a company</div>
+      </div>
+    </div>
+    <textarea class="editor" id="var-b" data-key="var-b">**The four stages of AI inside a company:**
+
+1. **Chat.** One person asks, one model answers. Useful, not transformative.
+
+2. **Research.** The model reads, cites, synthesizes. Output is material a colleague can use.
+
+3. **Workflow.** Input format defined, output format defined, verification baked in. Repeatable. Auditable. Someone owns it.
+
+4. **Agent.** Persistent. The work runs whether you log in or not. Alerts fire when something needs a human.
+
+Most enterprise AI lives between Stage 1 and Stage 2. The decks claim Stage 4. The receipts say otherwise.
+
+I shared this in Shenzhen last week at a SingCham session on AI in enterprise. The honest gap is not technical. It is organizational.
+
+Stage 3 needs a clear input format, a clear output format, and a name on the verification step. Stage 4 needs all of that plus persistent state, alerting, and a human who actually reads the alerts.
+
+The teams that reach Stage 3 in 90 days are not the ones with the best models. They are the ones who chose tasks where the four pieces already exist: clear inputs, clear outputs, verifiable result, named owner.
+
+Pick those tasks first. Everything else stays at Stage 1 until the organization catches up.</textarea>
+    <div class="card-footer">
+      <span class="word-count" id="wc-b">loading</span>
+      <button onclick="copyVar('var-b')">Copy</button>
+    </div>
+  </div>
+
+  <!-- Variation C -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Variation C · Hybrid</h2>
+      <div class="card-meta">
+        <div><span class="tag-label">Hook:</span> <strong>Named tension</strong></div>
+        <div><span class="tag-label">Close:</span> <strong>Time-horizon stakes</strong></div>
+        <div><span class="tag-label">Angle:</span> Three failure modes AI accelerates</div>
+      </div>
+    </div>
+    <textarea class="editor" id="var-c" data-key="var-c">AI does not bring order to a company. It amplifies whatever order already exists.
+
+I made this argument in Shenzhen last week at a SingCham session for enterprise managers. The honest reaction was uncomfortable. Most of the leaders in the room had been hoping AI would fix things they had not been able to fix with people.
+
+It does not work that way.
+
+Three patterns repeat across the teams I have watched try:
+
+1. No source of truth. Five spreadsheets, four definitions of revenue. Add AI: now five spreadsheets with confident wrong answers, generated faster.
+
+2. No written handoffs. Work moves between people through verbal context. Add AI: the agent invents the handoff and gets it wrong in a plausible way.
+
+3. No named owner of the decision. Committees, opinions, no accountability. Add AI: the agent decides by default and nobody catches it.
+
+The teams that get value from AI fixed these three things first. The ones that did not are running faster in the wrong direction.
+
+The work that compounds is not prompt engineering. It is the boring infrastructure of a clear company: one source of truth, written handoffs, named owners on every decision.
+
+Prompts are cheap. Context packages are expensive. The companies that learn this in 2026 will look very different in 2028.</textarea>
+    <div class="card-footer">
+      <span class="word-count" id="wc-c">loading</span>
+      <button onclick="copyVar('var-c')">Copy</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="section-title">Metadata</div>
+<div class="meta-card">
+  <label>content_type</label>
+  <input type="text" id="meta-content_type" data-key="meta-content_type" value="event-reflection" />
+
+  <label>risk</label>
+  <input type="text" id="meta-risk" data-key="meta-risk" value="medium" />
+
+  <label>length</label>
+  <input type="text" id="meta-length" data-key="meta-length" value="195-225 words across variations" />
+
+  <label>style_and_tactic</label>
+  <textarea id="meta-style" data-key="meta-style">Three lenses on Mu's "AI 如何进入企业日常工作" talk at SingCham Guangdong × OpenClaw Asia, Shenzhen. A: Named-tension hook ("not researching, scheduling") backed by 4,388-sessions personal-authority cold open + Canopy proof beat ($120B / 60+ / 1,600+); aphorism close. B: Bolded-list header on the four-stage capability ladder (Chat / Research / Workflow / Agent); consequence-of-inaction close. C: Contrarian "AI amplifies chaos, does not create order" with three concrete failure-mode bullets; time-horizon close (2026 → 2028). All three thread Canopy's positioning (real workbench, real workforce) through Mu's enterprise-mgmt frame without naming Canopy in body. Targets broad enterprise/AI audience, not wealth-specific.</textarea>
+
+  <label>suggested_media</label>
+  <textarea id="meta-media" data-key="meta-media">SingCham × OpenClaw event poster from luma.com/ifqcjv8z, OR a stat card showing "4,388 sessions / 258 main / 1,480 workers / 2,650 observers" with the four-stage maturity ladder below. Slide from the talk showing the Direction → AI Layer → Functional Teams org model also works.</textarea>
+
+  <label>kpi_targets</label>
+  <input type="text" id="meta-kpi" data-key="meta-kpi" value="10-15K impressions (broader enterprise audience), 100-200 reactions, 20-40 comments" />
+
+  <label>inspirations</label>
+  <textarea id="meta-inspirations" data-key="meta-inspirations">SingCham Guangdong × OpenClaw Asia event "AI落地实战" (Shenzhen). Mu's 15:10-15:40 talk "AI 如何进入企业日常工作" alongside Bruce (OpenClaw Asia) and 柒柒 (Cheng Jue Intelligence founder + AI deputy director Bay Area Youth Talent Dev Research Institute). DBS Bank's Rain 曾子昱 gave opening remarks. Mu's deck at survey.wealthskills.ai/talk/. Key frameworks Mu introduced: Capability Maturity (Chat → Research → Workflow → Agent), Task Selection (high-frequency / clear I/O / verifiable / accountable), Context Package (source register, project manifest, handoff card, verification), Evidence Chain (Source → Claim → Visual → Verify → Handoff).</textarea>
+</div>
+
+<div class="section-title">First Comment</div>
+<div class="card first-comment-card">
+  <textarea id="first-comment" data-key="first-comment">Everyone in the room nodded at Stage 4. Very few had an agent actually running unattended in production. The honest test: does it page someone when something breaks? If not, it is Stage 3 in a fancy wrapper.</textarea>
+  <div class="card-footer">
+    <span class="word-count" id="wc-fc">loading</span>
+    <button onclick="copyVar('first-comment')">Copy</button>
+  </div>
+</div>
+
+<footer class="bottom">
+  <div>
+    Audit: <strong>em-dash</strong> ban, <strong>no contractions</strong>, <strong>no hashtags/emojis</strong>, <strong>no name-drop "Canopy" in body</strong>. Run browser Find for the long-dash character before publishing.
+  </div>
+  <div>
+    Skill: <a href="file:///Users/annabellin/.claude/skills/linkedin-post/SKILL.md">linkedin-post/SKILL.md</a>
+  </div>
+</footer>
+
+</div>
+
+<script>
+const STORAGE_KEY = 'canopy-preview-mu-ai-amplifies-chaos-v1';
+const FIELDS = ['var-a','var-b','var-c','meta-content_type','meta-risk','meta-length','meta-style','meta-media','meta-kpi','meta-inspirations','first-comment','post-title'];
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    FIELDS.forEach(k => {
+      if (data[k] === undefined) return;
+      const el = (k === 'post-title') ? document.getElementById('post-title') : document.querySelector(`[data-key="${k}"]`);
+      if (!el) return;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.value = data[k];
+      else el.textContent = data[k];
+    });
+  } catch (e) { console.warn('load failed', e); }
+}
+
+function save() {
+  const data = {};
+  FIELDS.forEach(k => {
+    const el = (k === 'post-title') ? document.getElementById('post-title') : document.querySelector(`[data-key="${k}"]`);
+    if (!el) return;
+    data[k] = (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') ? el.value : el.textContent;
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  flashSaved();
+}
+
+let saveTimer = null;
+function debouncedSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(save, 400);
+}
+
+function flashSaved() {
+  const ind = document.getElementById('save-indicator');
+  const ts = new Date().toLocaleTimeString();
+  ind.textContent = `saved · ${ts}`;
+  ind.classList.add('saved');
+  clearTimeout(flashSaved._t);
+  flashSaved._t = setTimeout(() => {
+    ind.textContent = 'edits save locally';
+    ind.classList.remove('saved');
+  }, 1500);
+}
+
+function countWords(s) { return (s.trim().match(/\S+/g) || []).length; }
+function updateWordCounts() {
+  const map = { 'var-a': 'wc-a', 'var-b': 'wc-b', 'var-c': 'wc-c', 'first-comment': 'wc-fc' };
+  for (const [src, dst] of Object.entries(map)) {
+    const el = document.getElementById(src);
+    const out = document.getElementById(dst);
+    if (!el || !out) continue;
+    const wc = countWords(el.value);
+    const isFc = src === 'first-comment';
+    const ok = isFc ? (wc >= 15 && wc <= 70) : (wc >= 140 && wc <= 260);
+    out.textContent = `${wc} words` + (isFc ? ' (target 20-50)' : ' (target 150-220)');
+    out.classList.toggle('warn', !ok);
+  }
+}
+
+function copyVar(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.value).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = 'Copied';
+    setTimeout(() => { btn.textContent = orig; }, 1200);
+  });
+}
+
+function exportMarkdown() {
+  const title = document.getElementById('post-title').textContent.trim();
+  const v = id => document.getElementById(id).value.trim();
+  const md = `# ${title}
+**Voice**: Mu (\`mu-linkedin\`)
+**Slug**: \`mu-ai-amplifies-chaos\`
+**Event**: SingCham Guangdong × OpenClaw Asia · Shenzhen, 2026
+
+## Variation A - "Scheduling, not researching" angle
+**Format**: White Space · **Hook**: Named tension · **Close**: Aphorism
+
+${v('var-a')}
+
+---
+
+## Variation B - "Four stages of AI inside a company" angle
+**Format**: Structured · **Hook**: Bolded list header · **Close**: Consequence-of-inaction
+
+${v('var-b')}
+
+---
+
+## Variation C - "Three failure modes AI accelerates" angle
+**Format**: Hybrid · **Hook**: Named tension · **Close**: Time-horizon stakes
+
+${v('var-c')}
+
+---
+
+## Metadata
+
+- **content_type**: ${v('meta-content_type')}
+- **risk**: ${v('meta-risk')}
+- **length**: ${v('meta-length')}
+- **style_and_tactic**: ${v('meta-style')}
+- **suggested_media**: ${v('meta-media')}
+- **kpi_targets**: ${v('meta-kpi')}
+- **inspirations**: ${v('meta-inspirations')}
+
+## First Comment
+
+${v('first-comment')}
+`;
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 16);
+  a.download = `mu-ai-amplifies-chaos_${stamp}.md`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function resetAll() {
+  if (!confirm('Reset all edits back to the original draft? Your local changes will be lost.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  load();
+  updateWordCounts();
+  document.querySelectorAll('textarea, input').forEach(el => {
+    el.addEventListener('input', () => { debouncedSave(); updateWordCounts(); });
+  });
+  document.getElementById('post-title').addEventListener('input', debouncedSave);
+});
+</script>
+</body>
+</html>
